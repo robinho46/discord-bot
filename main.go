@@ -62,7 +62,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	if m.Content == "!quote" {
-		s.ChannelMessageSend(channelID, "Your quote is:\n"+quote)
+		s.ChannelMessageSend(channelID, "## Your quote is:\n"+quote)
 	}
 }
 
