@@ -90,12 +90,12 @@ func getRandomQuote(filename string) (string, error) {
 }
 
 func sendDailyQuote(dg *discordgo.Session) {
-	loc, _ := time.LoadLocation("Europe/Stockholm") // Laddar svensk tid
 	for {
-		now := time.Now().In(loc)
-		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 7, 0, 0, 0, loc) // Alltid 07:00 svensk tid
+		now := time.Now()
 
-		// Om klockan redan är efter 07:00 idag, välj nästa dag
+		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 7, 0, 0, 0, now.Location())
+
+		// Om klockan redan har passerat hoppa över
 		if now.After(nextRun) {
 			nextRun = nextRun.Add(24 * time.Hour)
 		}
