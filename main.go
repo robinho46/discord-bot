@@ -95,7 +95,7 @@ func sendDailyQuote(dg *discordgo.Session) {
 		now := time.Now()
 
 		// Ställ in önskad sändningstid (t.ex. 08:00)
-		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 23, 32, 0, 0, now.Location())
+		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 23, 36, 0, 0, now.Location())
 
 		// Om klockan redan är efter 08:00 idag, välj nästa dag
 		if now.After(nextRun) {
