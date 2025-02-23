@@ -5,8 +5,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 	"log"
-	"math/rand" // For random number generation
-	"os"        // For reading the quotes.txt file
+	"math/rand"
+	"os"
 	"strings"
 	"time"
 )
@@ -90,11 +90,12 @@ func getRandomQuote(filename string) (string, error) {
 }
 
 func sendDailyQuote(dg *discordgo.Session) {
+	loc, _ := time.LoadLocation("Europe/Stockholm") // Laddar svensk tid
 	for {
-		now := time.Now().UTC()
-		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 22, 57, 0, 0, time.UTC) // 23:53 svensk tid
+		now := time.Now().In(loc)
+		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 7, 0, 0, 0, loc) // Alltid 07:00 svensk tid
 
-		// Om klockan redan är efter 08:00 idag, välj nästa dag
+		// Om klockan redan är efter 07:00 idag, välj nästa dag
 		if now.After(nextRun) {
 			nextRun = nextRun.Add(24 * time.Hour)
 		}
@@ -108,8 +109,7 @@ func sendDailyQuote(dg *discordgo.Session) {
 			log.Println("Daily quote error:", err)
 			continue
 		}
-		//_, err = dg.ChannelMessageSend(channelID, "@everyone\nDaily Quote:\n"+quote)
-		_, err = dg.ChannelMessageSend(channelID, "@everyone\nDaily Quote time test:\n"+quote)
+		_, err = dg.ChannelMessageSend(channelID, "@everyone\n## Daily Quote:\n"+quote)
 		if err != nil {
 			log.Println("Failed to send daily quote:", err)
 		}
