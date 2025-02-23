@@ -91,29 +91,26 @@ func getRandomQuote(filename string) (string, error) {
 
 func sendDailyQuote(dg *discordgo.Session) {
 	for {
-		// Hämta nuvarande tid
-		now := time.Now()
-
-		// Ställ in önskad sändningstid (t.ex. 08:00)
-		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 23, 44, 0, 0, now.Location())
+		loc, _ := time.LoadLocation("Europe/Stockholm")
+		now := time.Now().In(loc)
+		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 23, 53, 0, 0, loc)
 
 		// Om klockan redan är efter 08:00 idag, välj nästa dag
 		if now.After(nextRun) {
 			nextRun = nextRun.Add(24 * time.Hour)
 		}
 
-		// Vänta tills den specifika tiden
 		waitDuration := time.Until(nextRun)
 		log.Printf("Nästa dagliga quote skickas om: %v\n", waitDuration)
 		time.Sleep(waitDuration)
 
-		// Hämta och skicka citat
 		quote, err := getRandomQuote("quotes.txt")
 		if err != nil {
 			log.Println("Daily quote error:", err)
 			continue
 		}
-		_, err = dg.ChannelMessageSend(channelID, "@everyone\nDaily Quote:\n"+quote)
+		//_, err = dg.ChannelMessageSend(channelID, "@everyone\nDaily Quote:\n"+quote)
+		_, err = dg.ChannelMessageSend(channelID, "@everyone\nDaily Quote time test:\n"+quote)
 		if err != nil {
 			log.Println("Failed to send daily quote:", err)
 		}
