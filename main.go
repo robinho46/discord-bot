@@ -93,7 +93,7 @@ func sendDailyQuote(dg *discordgo.Session) {
 	for {
 		now := time.Now()
 
-		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 7, 0, 0, 0, now.Location())
+		nextRun := time.Date(now.Year(), now.Month(), now.Day(), 6, 0, 0, 0, now.Location())
 
 		// Om klockan redan har passerat hoppa över
 		if now.After(nextRun) {
