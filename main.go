@@ -38,11 +38,13 @@ func main() {
 }
 
 func loadEnv() {
-	err := godotenv.Load() // Loads .env by default
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// Försök ladda .env för lokal utveckling
+	if err := godotenv.Load(); err != nil {
+		log.Println("Error loading .env file, using environment variables instead.")
 	}
-	token = os.Getenv("TOKEN") // Assign token from .env
+
+	// Läser miljövariabler
+	token = os.Getenv("TOKEN")
 	channelID = os.Getenv("CHANNEL_ID")
 }
 
@@ -51,24 +53,25 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "!quote") {
-		quote, err := getRandomQuote("quotes.txt")
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Något gick fel ^_^")
-			return
-		}
-		s.ChannelMessageSend(m.ChannelID, quote)
+	// Logga hela meddelandet och innehållet
+	log.Printf("Meddelande mottaget: '%s' i kanal: '%s'", m.Content, m.ChannelID)
+
+	quote, err := getRandomQuote("quotes.txt")
+	if err != nil {
+		println(err)
+		return
+	}
+	if m.Content == "!quote" {
+		s.ChannelMessageSend(channelID, "Your quote is:\n"+quote)
 	}
 }
 
 func getRandomQuote(filename string) (string, error) {
-	// 1. Read entire file
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return "", fmt.Errorf("kunde inte läsa filen: %v", err)
 	}
 
-	// 2. Split into lines and clean
 	lines := strings.Split(string(data), "\n")
 	var quotes []string
 	for _, line := range lines {
@@ -78,19 +81,17 @@ func getRandomQuote(filename string) (string, error) {
 		}
 	}
 
-	// 3. Check for empty quotes
 	if len(quotes) == 0 {
 		return "", fmt.Errorf("inga quotes finns")
 	}
 
-	// 4. Pick random quote
 	randomIndex := rand.Intn(len(quotes))
 	return quotes[randomIndex], nil
 }
 
 func sendDailyQuote(dg *discordgo.Session) {
 	ticker := time.NewTicker(24 * time.Hour)
-	// ticker := time.NewTicker(5 * time.Second) -- used for testing
+	//ticker := time.NewTicker(5 * time.Second) //-- used for testing
 
 	defer ticker.Stop()
 
