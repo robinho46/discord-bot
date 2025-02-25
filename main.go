@@ -61,9 +61,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		println(err)
 		return
 	}
-	if m.Content == "!quote" {
+	if m.Content == "!quote" || m.Content == "!quote random" || m.Content == "!quote Random" {
 		s.ChannelMessageSend(channelID, "## Your quote is:\n"+quote)
 	}
+
+	if m.Content == "!quote motivation" || m.Content == "!quote Motivation" {
+		motivationQuote, err := getMotivationQuote("quotes.txt")
+		if err != nil {
+			println(err)
+			return
+		}
+		s.ChannelMessageSend(channelID, "## Your funny quote is:\n"+motivationQuote)
+	}
+
 }
 
 func getRandomQuote(filename string) (string, error) {
@@ -83,6 +93,48 @@ func getRandomQuote(filename string) (string, error) {
 
 	if len(quotes) == 0 {
 		return "", fmt.Errorf("inga quotes finns")
+	}
+
+	randomIndex := rand.Intn(len(quotes))
+	return quotes[randomIndex], nil
+}
+func getMotivationQuote(filename string) (string, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return "", fmt.Errorf("kunde inte läsa filen: %v", err)
+	}
+
+	lines := strings.Split(string(data), "\n")
+	var quotes []string
+	readingMotivation := false
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// Check if we reach the '# motivation' section
+		if trimmed == "# Motivation" {
+			readingMotivation = true
+			continue // Skip the '# motivation' line itself
+		}
+
+		// Stop reading if we reach the '# funny' section
+		if readingMotivation && strings.HasPrefix(trimmed, "# Funny") {
+			break
+		}
+
+		// Stop reading if another section starts after '# motivation'
+		if readingMotivation && (strings.HasPrefix(trimmed, "#") && trimmed != "# motivation") {
+			break
+		}
+
+		// Add the quote if we're reading the motivation section
+		if readingMotivation && trimmed != "" {
+			quotes = append(quotes, trimmed)
+		}
+	}
+
+	if len(quotes) == 0 {
+		return "", fmt.Errorf("inga motivation quotes finns")
 	}
 
 	randomIndex := rand.Intn(len(quotes))
