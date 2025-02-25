@@ -17,7 +17,7 @@ var (
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano()) // Add this
+	rand.Seed(time.Now().UnixNano())
 	loadEnv()
 
 	dg, err := discordgo.New("Bot " + token)
@@ -99,9 +99,12 @@ func getRandomQuote(filename string) (string, error) {
 	var quotes []string
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		if trimmed != "" {
-			quotes = append(quotes, trimmed)
+
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			continue
 		}
+
+		quotes = append(quotes, trimmed)
 	}
 
 	if len(quotes) == 0 {
@@ -125,24 +128,20 @@ func getMotivationQuote(filename string) (string, error) {
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 
-		// Check if we reach the '# motivation' section
 		if trimmed == "# Motivation" {
 			readingMotivation = true
-			continue // Skip the '# motivation' line itself
+			continue
 		}
 
-		// Stop reading if we reach the '# funny' section
 		if readingMotivation && strings.HasPrefix(trimmed, "# Funny") {
 			break
 		}
 
-		// Stop reading if another section starts after '# motivation'
 		if readingMotivation && (strings.HasPrefix(trimmed, "#") && trimmed != "# Motivation") {
 			break
 		}
 
-		// Add the quote if we're reading the motivation section
-		if readingMotivation && trimmed != "" {
+		if readingMotivation && trimmed != "" && !strings.HasPrefix(trimmed, "#") {
 			quotes = append(quotes, trimmed)
 		}
 	}
@@ -168,19 +167,16 @@ func getFunnyQuote(filename string) (string, error) {
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 
-		// Check if we reach the '# motivation' section
 		if trimmed == "# Funny" {
 			readingFunny = true
 			continue
 		}
 
-		// Stop reading if another section starts after '# motivation'
 		if readingFunny && (strings.HasPrefix(trimmed, "#") && trimmed != "# Funny") {
 			break
 		}
 
-		// Add the quote if we're reading the motivation section
-		if readingFunny && trimmed != "" {
+		if readingFunny && trimmed != "" && !strings.HasPrefix(trimmed, "#") {
 			quotes = append(quotes, trimmed)
 		}
 	}
