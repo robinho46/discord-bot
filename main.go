@@ -223,6 +223,7 @@ func sendDailyQuote(dg *discordgo.Session) {
 func help() string {
 	return "## Here are the available commands:\n" +
 		"!quote - Get a random quote\n" +
+		"!quote random - Get a random quote\n" +
 		"!quote motivation - Get a motivation quote\n" +
 		"!quote funny - Get a funny quote\n" +
 		"Feel free to type any of these commands to receive a quote!"
