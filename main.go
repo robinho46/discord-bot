@@ -82,6 +82,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		s.ChannelMessageSend(channelID, "## Your funny quote is:\n"+funnyQuote)
 	}
+
+	if strings.ToLower(m.Content) == "!quote help" {
+		helpMessage := help()
+		s.ChannelMessageSend(channelID, helpMessage)
+	}
 }
 
 func getRandomQuote(filename string) (string, error) {
@@ -213,4 +218,12 @@ func sendDailyQuote(dg *discordgo.Session) {
 			log.Println("Failed to send daily quote:", err)
 		}
 	}
+}
+
+func help() string {
+	return "## Here are the available commands:\n" +
+		"!quote - Get a random quote\n" +
+		"!quote motivation - Get a motivation quote\n" +
+		"!quote funny - Get a funny quote\n" +
+		"Feel free to type any of these commands to receive a quote!"
 }
